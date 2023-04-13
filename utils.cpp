@@ -13,6 +13,7 @@ void logSDLError(std::ostream &os, const std::string &msg, bool fatal) {
     os << msg << " Error: " << SDL_GetError() << std::endl;
     if (fatal) {
         SDL_Quit();
+        exit(1);
     }
 }
 
@@ -61,4 +62,12 @@ void quitSDL(SDL_Window* window, SDL_Renderer* renderer) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+void logError(std::ostream &os, const std::string &msg, bool fatal) {
+    os << "Some thing gone wrong maybe? " << msg << std::endl;
+    if (fatal) {
+        SDL_Quit();
+        exit(1);
+    }
 }

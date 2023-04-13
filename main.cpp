@@ -1,6 +1,7 @@
 // Custom library
 #include <constants.h>
 #include <utils.h>
+#include <object.h>
 
 // SDL2 library
 #include <SDL2/SDL.h>
@@ -28,6 +29,7 @@ int main(int argc, char **argv) {
         // Get the number of ticks at the start of the loop
         frameStart = SDL_GetTicks();
 
+        // Getting user input
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 playing = false;

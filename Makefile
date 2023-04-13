@@ -19,13 +19,9 @@ OBJS := $(patsubst %.cpp,%,$(SRCS))
 
 all:
 	for file in ${OBJS} ; do \
-		if [ -a $$file.o ] ; \
-		then \
-			echo "Already have $$file.o" ; \
-		else \
-			echo "Creating $$file.o" ; \
-			$(COMPILER) $(INCLUDE_PATH) $(LIBRARY_PATH) -c $$file.cpp $(COMPILER_FLAGS) $(LINKER_FLAGS); \
-		fi; \
+		echo "Creating $$file.o" ; \
+		$(COMPILER) $(INCLUDE_PATH) $(LIBRARY_PATH) -c $$file.cpp $(COMPILER_FLAGS) $(LINKER_FLAGS); \
+		echo "Created $$file.o"; \
 	done 
 	$(COMPILER) $(INCLUDE_PATH) $(LIBRARY_PATH) -o main *.o $(COMPILER_FLAGS) $(LINKER_FLAGS)
 	

@@ -11,8 +11,8 @@
 // enumeration for different types of image.
 enum PictureID {
     CAT = 0,
-    BURNING_CELL,
-    PROTECTED_CELL,
+    BURNING,
+    PROTECTED,
     PIC_COUNT
 };
 
@@ -25,9 +25,10 @@ private:
     SDL_Renderer* renderer;
     std::vector <SDL_Texture*> loadTextureFromImage(std::string path, int numberOfFrame);
 public:
-    Gallery(SDL_Renderer _renderer);
+    Gallery(SDL_Renderer* _renderer);
     ~Gallery();
 
     void loadGamePictures();
     std::vector <SDL_Texture*> getImage(PictureID id) const { return pictures[id]; }
+    SDL_Texture* getFrame(PictureID obj, int currentFrame) const { return pictures[obj][currentFrame % (int)pictures[obj].size()]; }
 };
