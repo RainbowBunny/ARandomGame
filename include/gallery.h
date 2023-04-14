@@ -17,6 +17,8 @@ enum PictureID {
     BURNING,
     PROTECTED,
     GRASS,
+    GAME_WIN,
+    GAME_LOSE,
     PIC_COUNT
 };
 

@@ -13,6 +13,7 @@ const int FRAME_DELAY = 1000 / FPS;
 const int SCREEN_WIDTH = 900;
 const int SCREEN_HEIGHT = 650;
 const int CELL_SIZE = 80;
+const int MAXIMUM_BURNING_CELL = 28;
 
 const SDL_Color CYAN_COLOR = {0, 255, 255};
 const SDL_Color BLUE_COLOR = {0, 0, 255};

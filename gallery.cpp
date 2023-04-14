@@ -54,4 +54,6 @@ void Gallery::loadGamePictures() {
     pictures.push_back(loadTextureFromImage("image/burning", 1, ".png"));
     pictures.push_back(loadTextureFromImage("image/protected", 1, ".png"));
     pictures.push_back(loadTextureFromImage("image/grass_background", 1, ".png"));
+    pictures.push_back(loadTextureFromImage("image/game_winning", 1, ".jpg"));
+    pictures.push_back(loadTextureFromImage("image/game_losing", 1, ".jpg"));
 }

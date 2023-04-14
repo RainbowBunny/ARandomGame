@@ -14,14 +14,6 @@
 #include <chrono>
 #include <random>
 
-enum CellType {
-    CAT_CELL = 0, // cell in which the cat is playing.
-    BURNING_CELL, // cell which was destroyed by fire.
-    PROTECTED_CELL, // cell which was chosen, fire can not get through.
-    EMPTY_CELL, // cell in the playing screen but does not has anything
-    CELL_OFF_BOARD // cell out of playing screen.
-};
-
 // Random device
 
 class RandomGenerator {
@@ -33,6 +25,22 @@ public:
     int randomInteger(int l, int r) { return rng() % (r - l + 1) + l; }
 };
 
+enum CellType {
+    CAT_CELL = 0, // cell in which the cat is playing.
+    BURNING_CELL, // cell which was destroyed by fire.
+    PROTECTED_CELL, // cell which was chosen, fire can not get through.
+    EMPTY_CELL, // cell in the playing screen but does not has anything
+    CELL_OFF_BOARD // cell out of playing screen.
+};
+
+enum GameState {
+    PLAYING = 0,
+    LOSE,
+    WIN, 
+    QUIT
+};
+
+
 class Cell {
 private:
     int left, top, width, height, frame;
@@ -43,10 +51,11 @@ public:
     Cell() {}
     Cell(int _left, int _top, int _width, int _height, 
         CellType _cellType, SDL_Texture* _defaultState);
+    CellType getCellType() { return cellType; }
     bool isInsideCell(int posx, int posy);
     void setCellType(CellType _type);
     void updateDefaultState(SDL_Texture* _default);
-    void drawCell(SDL_Renderer* &Renderer, Gallery &gallery);
+    void drawCell(SDL_Renderer* &Renderer, Gallery &gallery, SDL_Texture* image);
 };
 
 class Board {
@@ -57,9 +66,14 @@ public:
     Board() {}
     Board(int _boardWidth, int _boardHeight, int _gameBoardLeft, 
         int _gameBoardTop, SDL_Renderer* _renderer, Gallery &gallery);
+    bool isInsideBoard(int x, int y);
     void setCellType(int x, int y, CellType type) { gameBoard[x][y].setCellType(type); };
     void createBoard(Gallery &gallery);
     void renderBoard(SDL_Renderer* &renderer, SDL_Color color, Gallery &gallery);
+    void renderMouseSpecialCell(int mouseX, int mouseY, SDL_Renderer* &renderer, Gallery &gallery);
+    void nextStep();
+    void getChosenCell(int mouseX, int mouseY, int &cellX, int &cellY);
+    int countBurning();
 };
 
 class Cat {
@@ -74,13 +88,18 @@ public:
 
 class Game {
 private:
+    RandomGenerator randomGenerator;
     Board board;
     Cat cat;
-    RandomGenerator randomGenerator;
+    GameState gameState;
 public:
     Game() {}
     Game(int _boardWidth, int _boardHeight, int _gameBoardLeft, int _gameBoardTop, SDL_Renderer* _renderer, Gallery &gallery);
     void renderGame(SDL_Renderer* &renderer, SDL_Color color, Gallery &gallery);
+    void nextStep();
+    void handleUserInput(SDL_Event e);
+    void updateGameState(GameState g) { gameState = g; }
+    GameState getGameState() { return gameState; }
 };
 
 #endif

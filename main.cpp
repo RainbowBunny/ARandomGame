@@ -9,6 +9,7 @@
 
 // Standard library
 #include <iostream>
+#include <utility>
 
 const char* gameTitle = "Game";
 
@@ -23,7 +24,7 @@ int main(int argc, char **argv) {
     Gallery gGallery(gRenderer);
     gGallery.loadGamePictures();
 
-    Game game(7, 7, 30, 30, gRenderer, gGallery);
+    Game game(7, 7, 300, 30, gRenderer, gGallery);
     
     // Event handler
     SDL_Event e;
@@ -33,25 +34,28 @@ int main(int argc, char **argv) {
     int frameTime;
 
     // Main game loop.
-    bool playing = true;
-    while (playing) {
+    while (true) {
         // Get the number of ticks at the start of the loop
         frameStart = SDL_GetTicks();
 
+        SDL_SetRenderDrawColor(gRenderer, WHITE_COLOR.r, WHITE_COLOR.g, WHITE_COLOR.b, WHITE_COLOR.a);
         SDL_RenderClear(gRenderer);
 
         // Getting user input
         while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
-                playing = false;
-            }
+            game.handleUserInput(e);
         }
 
-        if (!playing) {
+        if (game.getGameState() == QUIT) {
+            break;
+        } else if (game.getGameState() == WIN) {
+            break;
+        } else if (game.getGameState() == LOSE) {
             break;
         }
 
         game.renderGame(gRenderer, DEFAULT_COLOR, gGallery);
+        
         SDL_RenderPresent(gRenderer);
 
         // Delay to maintain the current FPS
