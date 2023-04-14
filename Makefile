@@ -16,12 +16,13 @@ COMPILER_FLAGS = -lmingw32
 SRCS := $(wildcard *.cpp)
 OBJS := $(patsubst %.cpp,%,$(SRCS))
 
-
-all:
+create:
 	for file in ${OBJS} ; do \
 		echo "Creating $$file.o" ; \
-		$(COMPILER) $(INCLUDE_PATH) $(LIBRARY_PATH) -c $$file.cpp $(COMPILER_FLAGS) $(LINKER_FLAGS); \
+		$(COMPILER) $(INCLUDE_PATH) $(LIBRARY_PATH) -c $$file.cpp $(COMPILER_FLAGS); \
 		echo "Created $$file.o"; \
 	done 
+
+all:
 	$(COMPILER) $(INCLUDE_PATH) $(LIBRARY_PATH) -o main *.o $(COMPILER_FLAGS) $(LINKER_FLAGS)
 	

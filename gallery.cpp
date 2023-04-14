@@ -18,7 +18,8 @@ Gallery::~Gallery() {
     std::swap(pictures, tmp);
 }
 
-std::vector <SDL_Texture*> Gallery::loadTextureFromImage(std::string path, int numberOfFrame) {
+std::vector <SDL_Texture*> Gallery::loadTextureFromImage(std::string path, 
+    int numberOfFrame, std::string extension) {
     /*
         This function is used to load an animation series
         Input:
@@ -29,7 +30,7 @@ std::vector <SDL_Texture*> Gallery::loadTextureFromImage(std::string path, int n
     */
     std::vector <SDL_Texture*> animation(numberOfFrame);
     for (int i = 0; i < numberOfFrame; i++) {
-        SDL_Surface* loadedSurface = IMG_Load((path + "_" + std::to_string(i) + ".png").c_str());
+        SDL_Surface* loadedSurface = IMG_Load((path + "_" + std::to_string(i) + extension).c_str());
         if (loadedSurface == nullptr) {
             logSDLError(std::cout, "Can not load image: " + path, true);            
         }
@@ -43,12 +44,14 @@ void Gallery::loadGamePictures() {
     /*
     enum PictureID {
         CAT = 0,
-        BURNING_CELL,
-        PROTECTED_CELL,
+        BURNING,
+        PROTECTED,
+        GRASS,
         PIC_COUNT
     };
     */
-    pictures.push_back(loadTextureFromImage("cat", 1));
-    pictures.push_back(loadTextureFromImage("burning", 1));
-    pictures.push_back(loadTextureFromImage("protected", 1));
+    pictures.push_back(loadTextureFromImage("image/cat", 1, ".png"));
+    pictures.push_back(loadTextureFromImage("image/burning", 1, ".png"));
+    pictures.push_back(loadTextureFromImage("image/protected", 1, ".png"));
+    pictures.push_back(loadTextureFromImage("image/grass_background", 1, ".png"));
 }
