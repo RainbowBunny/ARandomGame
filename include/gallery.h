@@ -19,6 +19,8 @@ enum PictureID {
     GRASS,
     GAME_WIN,
     GAME_LOSE,
+    BUTTON, 
+    BACK_GROUND,
     PIC_COUNT
 };
 
@@ -30,7 +32,8 @@ private:
     std::vector <std::vector <SDL_Texture*> > pictures;
     SDL_Renderer* renderer;
     std::vector <SDL_Texture*> loadTextureFromImage(std::string path, 
-        int numberOfFrame, std::string extension);
+        int numberOfFrame, std::string extension, SDL_BlendMode blendMode);
+    SDL_Texture* loadTextureFromText(std::string textString, SDL_Color textColor);
 public:
     Gallery(SDL_Renderer* _renderer);
     ~Gallery();

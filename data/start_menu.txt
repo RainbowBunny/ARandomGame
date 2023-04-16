@@ -1,0 +1,4 @@
+3
+play 100 100 100 100 Play
+option 100 100 100 100 Option
+quit 100 100 100 100 Quit

@@ -7,15 +7,13 @@
 
 Cell::Cell(int _left, int _top, int _width, int _height, 
     CellType _cellType, SDL_Texture* _defaultState) {
-    left = _left; top = _top;
-    width = _width; height = _height;
     cellType = _cellType;
     defaultState = _defaultState;
-    dstRect = {left, top, width, height};
+    cellRect = {_left, _top, _width, _height};
 }
 
 bool Cell::isInsideCell(int posx, int posy) {
-    return posx >= left and posx <= left + width and posy >= top and posy <= top + height;  
+    return posx >= cellRect.x and posx <= cellRect.x + cellRect.w and posy >= cellRect.y and posy <= cellRect.y + cellRect.h;  
 }
 
 void Cell::setCellType(CellType _type) {
@@ -28,33 +26,33 @@ void Cell::updateDefaultState(SDL_Texture* _default) {
 
 void Cell::drawCell(SDL_Renderer* &renderer, Gallery &gallery, SDL_Texture* image) {
     // remember to break when using switch case.
-
     if (image != nullptr) {
-        SDL_RenderCopy(renderer, image, nullptr, &dstRect);
+        SDL_RenderCopy(renderer, image, nullptr, &cellRect);
         return;
     }
 
     switch (cellType) {
     case CAT_CELL: {
-        SDL_RenderCopy(renderer, gallery.getFrame(CAT, frame), nullptr, &dstRect);
+        SDL_RenderCopy(renderer, gallery.getFrame(GRASS, frame), nullptr, &cellRect);
+        SDL_RenderCopy(renderer, gallery.getFrame(CAT, frame), nullptr, &cellRect);
         frame++;
         break;
     }
 
     case BURNING_CELL: {
-        SDL_RenderCopy(renderer, gallery.getFrame(BURNING, frame), nullptr, &dstRect);
+        SDL_RenderCopy(renderer, gallery.getFrame(BURNING, frame), nullptr, &cellRect);
         frame++;
         break;
     }
 
     case PROTECTED_CELL: {
-        SDL_RenderCopy(renderer, gallery.getFrame(PROTECTED, frame), nullptr, &dstRect);
+        SDL_RenderCopy(renderer, gallery.getFrame(PROTECTED, frame), nullptr, &cellRect);
         frame++;
         break;
     }
 
     case EMPTY_CELL: {
-        SDL_RenderCopy(renderer, defaultState, nullptr, &dstRect);
+        SDL_RenderCopy(renderer, defaultState, nullptr, &cellRect);
         break;
     }
 
@@ -131,14 +129,14 @@ void Board::renderMouseSpecialCell(int mouseX, int mouseY, SDL_Renderer* &render
     */
     for (int i = 0; i < boardWidth; i++) {
         for (int j = 0; j < boardHeight; j++) {
-            if (gameBoard[i][j].isInsideCell(mouseX, mouseY) == true && gameBoard[i][j].getCellType() != BURNING_CELL) {
+            if (gameBoard[i][j].isInsideCell(mouseX, mouseY) == true && gameBoard[i][j].getCellType() != BURNING_CELL && gameBoard[i][j].getCellType() != PROTECTED_CELL) {
                 gameBoard[i][j].drawCell(renderer, gallery, gallery.getFrame(PROTECTED, 0));
             }
         }
     }
 }
 
-void Board::nextStep() {
+bool Board::nextStep() {
     /*
         The next step of the game.
         Fire will burn adjency cell which has not been protected.
@@ -160,8 +158,7 @@ void Board::nextStep() {
                 }
                 
                 if (gameBoard[nx][ny].getCellType() == CAT_CELL) {
-                    std::cout << "Game over" << std::endl;
-                    return;
+                    return false;
                 }
 
                 if (gameBoard[nx][ny].getCellType() == EMPTY_CELL) {
@@ -174,6 +171,8 @@ void Board::nextStep() {
     for (auto cell : updateBurningCell) {
         gameBoard[cell.first][cell.second].setCellType(BURNING_CELL);
     }
+
+    return true;
 }
 
 void Board::getChosenCell(int mouseX, int mouseY, int &cellX, int &cellY) {
@@ -203,7 +202,38 @@ int Board::countBurning() {
     return ans;
 }
 
-void Cat::generatePosition(int width, int height, RandomGenerator &randomGenerator) {
+bool Board::stalemate() {
+    /*
+        Check if the fire has been contained
+    */
+    int dx[] = {1, 0, -1, 0};
+    int dy[] = {0, 1, 0, -1};
+
+    for (int i = 0; i < boardWidth; i++) {
+        for (int j = 0; j < boardHeight; j++) {
+            if (gameBoard[i][j].getCellType() != BURNING_CELL) {
+                continue;
+            }
+            for (int k = 0; k < 4; k++) {
+                int nx = i + dx[k], ny = j + dy[k];
+                if (!isInsideBoard(nx, ny)) {
+                    continue;
+                }
+                
+                if (gameBoard[nx][ny].getCellType() == CAT_CELL) {
+                    return false;
+                }
+
+                if (gameBoard[nx][ny].getCellType() == EMPTY_CELL) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+void Cat::generatePosition(int width, int height, RandomGenerator &randomGenerator, Board board) {
     /*
         TODO: Implement
         This function is used to generate a random position for cat.
@@ -217,17 +247,16 @@ void Cat::generatePosition(int width, int height, RandomGenerator &randomGenerat
     while (true) {
         int genX = randomGenerator.randomInteger(0, width - 1);
         int genY = randomGenerator.randomInteger(0, height - 1);
-        if (genX + genY < (width + height) / 2) {
+        if (genX + genY < (width + height) / 2 - 1 && board.getCellType(genX, genY) != CAT_CELL) {
             x = genX;
             y = genY;
-            std::cout << x << ' ' << y << std::endl;
             break;
         }
     }
 }
 
-Game::Game(int _boardWidth, int _boardHeight, int _gameBoardLeft, 
-    int _gameBoardTop, SDL_Renderer* _renderer, Gallery &gallery) {
+Game::Game(int _maximumBurningCell, int numberOfCat, int initialBurningCell, int _boardWidth, int _boardHeight, 
+    int _gameBoardLeft, int _gameBoardTop, SDL_Renderer* _renderer, Gallery &gallery) {
     /*
         Game initialize
     */
@@ -242,15 +271,19 @@ Game::Game(int _boardWidth, int _boardHeight, int _gameBoardLeft,
     board.createBoard(gallery);
     
     // Creating the cat
-    cat = Cat();
-    cat.generatePosition(_boardWidth, _boardHeight, randomGenerator);
-    board.setCellType(cat.getX(), cat.getY(), CAT_CELL);
+    catList.resize(numberOfCat);
+    for (int i = 0; i < numberOfCat; i++) {
+        catList[i].generatePosition(_boardWidth, _boardHeight, randomGenerator, board);
+        board.setCellType(catList[i].getX(), catList[i].getY(), CAT_CELL);
+    }
+    
 
     // Creating the fire
     while (true) {
         int randomX = randomGenerator.randomInteger(0, _boardWidth - 1);
-        int randomY = randomGenerator.randomInteger(0, _boardHeight - 1);
+        int randomY = randomGenerator.randomInteger(_boardHeight - 1, _boardHeight - 1);
         if (randomX + randomY > (_boardWidth + _boardHeight) / 2) {
+            std::cout << randomX << ' ' << randomY << std::endl;
             board.setCellType(randomX, randomY, BURNING_CELL);
             break;
         }
@@ -268,15 +301,22 @@ void Game::renderGame(SDL_Renderer* &renderer, SDL_Color color, Gallery &gallery
 }
 
 void Game::nextStep() {
-    int preCount = board.countBurning();
-    board.nextStep();
-    int postCount = board.countBurning();
-    if (preCount == postCount) {
-        updateGameState(WIN);
+    /*
+        Rendering the next stage of the game
+    */
+    if (!board.nextStep()) {
+        updateGameState(LOSE);
         return;
     }
+    int postCount = board.countBurning();
     if (postCount > MAXIMUM_BURNING_CELL) {
         updateGameState(LOSE);
+        return;
+    }
+
+    if (board.stalemate()) {
+        updateGameState(WIN);
+        return;
     }
 }
 
@@ -301,6 +341,10 @@ void Game::handleUserInput(SDL_Event e) {
     if (cellX == -1 && cellY == -1) {
         return;
     }
+
+    if (board.getCellType(cellX, cellY) == PROTECTED_CELL) {
+        return;
+    } 
 
     board.setCellType(cellX, cellY, PROTECTED_CELL);
     nextStep();

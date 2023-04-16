@@ -8,7 +8,7 @@
 
 // Standard library
 
-const int FPS = 60;
+const int FPS = 20;
 const int FRAME_DELAY = 1000 / FPS;
 const int SCREEN_WIDTH = 900;
 const int SCREEN_HEIGHT = 650;
@@ -27,5 +27,12 @@ const SDL_Color BLACK_COLOR = {0, 0, 0};
 const SDL_Color GREEN_COLOR = {0, 128, 0};
 
 const SDL_Color DEFAULT_COLOR = BLACK_COLOR;
+
+enum GameState {
+    PLAYING = 0,
+    LOSE,
+    WIN, 
+    QUIT
+};
 
 # endif

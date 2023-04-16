@@ -24,7 +24,10 @@ int main(int argc, char **argv) {
     Gallery gGallery(gRenderer);
     gGallery.loadGamePictures();
 
-    Game game(7, 7, 300, 30, gRenderer, gGallery);
+    Game game(28, 1, 1, 7, 7, 200, 20, gRenderer, gGallery);
+
+    std::cout << "Initiated game" << std::endl;
+    std::cout << SDL_GetError();
     
     // Event handler
     SDL_Event e;
@@ -49,8 +52,10 @@ int main(int argc, char **argv) {
         if (game.getGameState() == QUIT) {
             break;
         } else if (game.getGameState() == WIN) {
+            std::cout << "Winning" << std::endl;
             break;
         } else if (game.getGameState() == LOSE) {
+            std::cout << "Losing" << std::endl;
             break;
         }
 
@@ -63,9 +68,8 @@ int main(int argc, char **argv) {
         frameTime = SDL_GetTicks() - frameStart;
         if (frameTime < FRAME_DELAY) {
             SDL_Delay(FRAME_DELAY - frameTime);
-        }        
+        }
     }
-
     quitSDL(gWindow, gRenderer);
     return 0;
 }
