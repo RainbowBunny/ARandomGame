@@ -12,14 +12,15 @@ const char* gameTitle = "Game";
 
 // Remember, do not forget argc, argv
 int main(int argc, char **argv) {
+    
     SDL_Window* gWindow;
     SDL_Renderer* gRenderer;
 
     initSDL(gWindow, gRenderer, SCREEN_WIDTH, SCREEN_HEIGHT, gameTitle);
-
+    std::cout << 1 << std::endl;
     // Creating game object
     Gallery gGallery(gRenderer);
-    gGallery.loadGamePictures();
+    std::cout << 2 << std::endl;
 
     // Game game(28, 1, 1, 7, 7, 200, 20, gRenderer, gGallery);
 
@@ -38,6 +39,7 @@ int main(int argc, char **argv) {
     // Main game loop.
     while (gameLoop.getGameState() != QUITTING_THE_GAME) {
         // Get the number of ticks at the start of the loop
+        // std::cout << "Beginning the loop" << std::endl;
         frameStart = SDL_GetTicks();
 
         SDL_SetRenderDrawColor(gRenderer, WHITE_COLOR.r, WHITE_COLOR.g, WHITE_COLOR.b, WHITE_COLOR.a);
@@ -51,6 +53,7 @@ int main(int argc, char **argv) {
         SDL_GetMouseState(&mouseX, &mouseY);
         gameLoop.renderGame(gRenderer, gGallery, mouseX, mouseY);
 
+        // std::cout << "Presenting the game" << std::endl;
         SDL_RenderPresent(gRenderer);
 
         // Delay to maintain the current FPS

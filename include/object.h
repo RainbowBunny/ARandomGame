@@ -52,16 +52,16 @@ public:
 
 class Board {
 private:
-    int boardWidth, boardHeight, gameBoardLeft, gameBoardTop;
+    int width, height;
+    SDL_Rect boardRect;
     std::vector <std::vector <Cell> > gameBoard;
 public:
     Board() {}
     Board(int _boardWidth, int _boardHeight, int _gameBoardLeft, 
-        int _gameBoardTop, SDL_Renderer* _renderer, Gallery &gallery);
+        int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery);
     bool isInsideBoard(int x, int y);
     CellType getCellType(int x, int y) { return gameBoard[x][y].getCellType(); }
     void setCellType(int x, int y, CellType type) { gameBoard[x][y].setCellType(type); }
-    void createBoard(Gallery &gallery);
     void renderBoard(SDL_Renderer* &renderer, SDL_Color color, Gallery &gallery);
     void renderMouseSpecialCell(int mouseX, int mouseY, SDL_Renderer* &renderer, Gallery &gallery);
     bool nextStep();
@@ -86,11 +86,11 @@ private:
     RandomGenerator randomGenerator;
     Board board;
     std::vector <Cat> catList;
-    GameState gameState;
+    GameState gameState = PLAYING_THE_GAME;
 public:
     Game() {}
     Game(int _maximumBurningCell, int numberOfCat, int initialBurningCell, int _boardWidth, int _boardHeight, 
-        int _gameBoardLeft, int _gameBoardTop, SDL_Renderer* _renderer, Gallery &gallery);
+        int _gameBoardLeft, int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery);
     void renderGame(SDL_Renderer* &renderer, SDL_Color color, Gallery &gallery);
     void nextStep();
     void handleUserInput(SDL_Event e);

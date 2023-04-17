@@ -10,6 +10,7 @@ Cell::Cell(int _left, int _top, int _width, int _height,
     cellType = _cellType;
     defaultState = _defaultState;
     cellRect = {_left, _top, _width, _height};
+    frame = 0;
 }
 
 bool Cell::isInsideCell(int posx, int posy) {
@@ -25,7 +26,7 @@ void Cell::updateDefaultState(SDL_Texture* _default) {
 }
 
 void Cell::drawCell(SDL_Renderer* &renderer, Gallery &gallery, SDL_Texture* image) {
-    std::cout << SDL_GetError() << std::endl;
+    // std::cout << SDL_GetError() << std::endl;
     // remember to break when using switch case.
     if (image != nullptr) {
         SDL_RenderCopy(renderer, image, nullptr, &cellRect);
@@ -34,7 +35,7 @@ void Cell::drawCell(SDL_Renderer* &renderer, Gallery &gallery, SDL_Texture* imag
 
     switch (cellType) {
     case CAT_CELL: {
-        SDL_RenderCopy(renderer, gallery.getFrame(GRASS, frame), nullptr, &cellRect);
+        // SDL_RenderCopy(renderer, gallery.getFrame(GRASS, frame), nullptr, &cellRect);
         SDL_RenderCopy(renderer, gallery.getFrame(CAT, frame), nullptr, &cellRect);
         frame++;
         break;
@@ -53,7 +54,7 @@ void Cell::drawCell(SDL_Renderer* &renderer, Gallery &gallery, SDL_Texture* imag
     }
 
     case EMPTY_CELL: {
-        SDL_RenderCopy(renderer, defaultState, nullptr, &cellRect);
+        // SDL_RenderCopy(renderer, defaultState, nullptr, &cellRect);
         break;
     }
 
@@ -70,69 +71,65 @@ void Cell::drawCell(SDL_Renderer* &renderer, Gallery &gallery, SDL_Texture* imag
 }
 
 Board::Board(int _boardWidth, int _boardHeight, int _gameBoardLeft, 
-    int _gameBoardTop, SDL_Renderer* _renderer, Gallery &gallery) {
-    boardWidth = _boardWidth;
-    boardHeight = _boardHeight;
-    gameBoardTop = _gameBoardTop;
-    gameBoardLeft = _gameBoardLeft;
-
-    createBoard(gallery);
+    int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery) {
+    boardRect = {_gameBoardTop, _gameBoardLeft, _boardWidth, _boardHeight};
+    width = _width;
+    height = _height;
+    
+    gameBoard.assign(_width, std::vector <Cell> (_height));
+    for (int i = 0; i < _width; i++) {
+        for (int j = 0; j < _height; j++) {
+            int x = 0;
+            gameBoard[i][j] = Cell(boardRect.x + i * (_boardWidth / width) + 1, boardRect.y + j * (_boardHeight / height) + 1, 
+                (_boardWidth / width) - 1, (_boardHeight / height) - 1, EMPTY_CELL, gallery.getFrame(GRASS, x));
+        }
+    }
 }
 
 bool Board::isInsideBoard(int x, int y) {
-    return 0 <= x && 0 <= y && x < boardWidth && y < boardHeight;   
-}
-
-void Board::createBoard(Gallery &gallery) {
-    /*
-        Initialize the cell of the board.
-    */
-    gameBoard.assign(boardWidth, std::vector <Cell> (boardHeight));
-    for (int i = 0; i < boardWidth; i++) {
-        for (int j = 0; j < boardHeight; j++) {
-            gameBoard[i][j] = Cell(gameBoardLeft + i * CELL_SIZE + 1, gameBoardTop + j * CELL_SIZE + 1, 
-                CELL_SIZE - 1, CELL_SIZE - 1, EMPTY_CELL, gallery.getFrame(GRASS, 0));
-        }
-    }
+    return 0 <= x && 0 <= y && x < width && y < height;   
 }
 
 void Board::renderBoard(SDL_Renderer* &renderer, SDL_Color color, Gallery &gallery) {
     /*
         This function is used to draw the board for user to play.
     */
+    // std::cout << 1 << std::endl;
 
-    for (int i = 0; i < boardWidth; i++) {
-        for (int j = 0; j < boardHeight; j++) {
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
             gameBoard[i][j].drawCell(renderer, gallery, nullptr);
         }
     }
 
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    for (int i = 0; i < boardWidth; i++) {
-        for (int j = 0; j < boardHeight; j++) {
-            SDL_RenderDrawLine(renderer, gameBoardLeft + (i + 0) * CELL_SIZE, gameBoardTop + (j + 0) * CELL_SIZE, 
-                gameBoardLeft + (i + 0) * CELL_SIZE, gameBoardTop + (j + 1) * CELL_SIZE);
-            SDL_RenderDrawLine(renderer, gameBoardLeft + (i + 0) * CELL_SIZE, gameBoardTop + (j + 0) * CELL_SIZE, 
-                gameBoardLeft + (i + 1) * CELL_SIZE, gameBoardTop + (j + 0) * CELL_SIZE);
+    for (int i = 0; i <= width; i++) {
+        for (int j = 0; j <= height; j++) {
+            if (j + 1 <= width) {
+                SDL_RenderDrawLine(renderer, boardRect.x + (i + 0) * (boardRect.w / width), boardRect.y + (j + 0) * (boardRect.h / height), 
+                    boardRect.x + (i + 0) * (boardRect.w / width), boardRect.y + (j + 1) * (boardRect.h / height));
+            }
+            
+            
+            if (i + 1 <= height) {
+                SDL_RenderDrawLine(renderer, boardRect.x + (i + 0) * (boardRect.w / width), boardRect.y + (j + 0) * (boardRect.h / height), 
+                    boardRect.x + (i + 1) * (boardRect.w / width), boardRect.y + (j + 0) * (boardRect.h / height));
+            }
         }
     }
-    
-    SDL_RenderDrawLine(renderer, gameBoardLeft, gameBoardTop, 
-        gameBoardLeft, gameBoardTop + CELL_SIZE);
-    SDL_RenderDrawLine(renderer, gameBoardLeft, gameBoardTop, 
-        gameBoardLeft + CELL_SIZE, gameBoardTop);
-
+    // std::cout << 2 << std::endl;
 }
 
 void Board::renderMouseSpecialCell(int mouseX, int mouseY, SDL_Renderer* &renderer, Gallery &gallery) {
     /*
         Render special animation when mouse touch some cell.
     */
-    for (int i = 0; i < boardWidth; i++) {
-        for (int j = 0; j < boardHeight; j++) {
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
             if (gameBoard[i][j].isInsideCell(mouseX, mouseY) == true && gameBoard[i][j].getCellType() != BURNING_CELL && gameBoard[i][j].getCellType() != PROTECTED_CELL && 
                 gameBoard[i][j].getCellType() != CAT_CELL) {
-                gameBoard[i][j].drawCell(renderer, gallery, gallery.getFrame(PROTECTED, 0));
+                int x = 0;
+                gameBoard[i][j].drawCell(renderer, gallery, gallery.getFrame(PROTECTED, x));
             }
         }
     }
@@ -148,8 +145,10 @@ bool Board::nextStep() {
     int dx[] = {1, 0, -1, 0};
     int dy[] = {0, 1, 0, -1};
 
-    for (int i = 0; i < boardWidth; i++) {
-        for (int j = 0; j < boardHeight; j++) {
+    // std::cout << "Beginning next step" << std::endl;
+
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
             if (gameBoard[i][j].getCellType() != BURNING_CELL) {
                 continue;
             }
@@ -183,9 +182,11 @@ void Board::getChosenCell(int mouseX, int mouseY, int &cellX, int &cellY) {
         Output: Modified the value of cellX and cellY to the chosen cell of the board
         Return -1 -1 if no cell was chosen.
     */
+
+    // std::cout << "Board size: " << width << " " << height << " " << gameBoard[0].size() << " " << gameBoard.size();
     cellX = -1; cellY = -1;
-    for (int i = 0; i < boardWidth; i++) {
-        for (int j = 0; j < boardHeight; j++) { 
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) { 
             if (gameBoard[i][j].isInsideCell(mouseX, mouseY)) {
                 cellX = i; cellY = j;
                 return;
@@ -196,8 +197,8 @@ void Board::getChosenCell(int mouseX, int mouseY, int &cellX, int &cellY) {
 
 int Board::countBurning() {
     int ans = 0;
-    for (int i = 0; i < boardWidth; i++) {
-        for (int j = 0; j < boardHeight; j++) {
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
             ans += (gameBoard[i][j].getCellType() == BURNING_CELL);
         }
     }
@@ -211,8 +212,8 @@ bool Board::stalemate() {
     int dx[] = {1, 0, -1, 0};
     int dy[] = {0, 1, 0, -1};
 
-    for (int i = 0; i < boardWidth; i++) {
-        for (int j = 0; j < boardHeight; j++) {
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
             if (gameBoard[i][j].getCellType() != BURNING_CELL) {
                 continue;
             }
@@ -258,10 +259,13 @@ void Cat::generatePosition(int width, int height, RandomGenerator &randomGenerat
 }
 
 Game::Game(int _maximumBurningCell, int numberOfCat, int initialBurningCell, int _boardWidth, int _boardHeight, 
-    int _gameBoardLeft, int _gameBoardTop, SDL_Renderer* _renderer, Gallery &gallery) {
+    int _gameBoardLeft, int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery) {
     /*
         Game initialize
     */
+
+    maximumBurningCell = _maximumBurningCell;
+    // std::cout << "MaximumBurningCell: " << maximumBurningCell << std::endl;
 
     // Initializing the random generator
     unsigned seed = std::chrono::steady_clock::now().time_since_epoch().count();
@@ -269,22 +273,21 @@ Game::Game(int _maximumBurningCell, int numberOfCat, int initialBurningCell, int
 
     // Initializing the board of the game
     board = Board(_boardWidth, _boardHeight, _gameBoardLeft, 
-        _gameBoardTop, _renderer, gallery);
-    board.createBoard(gallery);
+        _gameBoardTop, _width, _height, _renderer, gallery);
     
     // Creating the cat
     catList.resize(numberOfCat);
     for (int i = 0; i < numberOfCat; i++) {
-        catList[i].generatePosition(_boardWidth, _boardHeight, randomGenerator, board);
+        catList[i].generatePosition(_width, _height, randomGenerator, board);
         board.setCellType(catList[i].getX(), catList[i].getY(), CAT_CELL);
     }
     
 
     // Creating the fire
     while (true) {
-        int randomX = randomGenerator.randomInteger(0, _boardWidth - 1);
-        int randomY = randomGenerator.randomInteger(_boardHeight - 1, _boardHeight - 1);
-        if (randomX + randomY > (_boardWidth + _boardHeight) / 2) {
+        int randomX = randomGenerator.randomInteger(0, _width - 1);
+        int randomY = randomGenerator.randomInteger(0, _height - 1);
+        if (randomX + randomY > (_width + _height) / 2) {
             std::cout << randomX << ' ' << randomY << std::endl;
             board.setCellType(randomX, randomY, BURNING_CELL);
             break;
@@ -307,12 +310,14 @@ void Game::nextStep() {
         Rendering the next stage of the game
     */
     if (!board.nextStep()) {
+        // std::cout << "Cat has been burned!" << std::endl;
         updateGameState(LOSING_THE_GAME);
         return;
     }
     int postCount = board.countBurning();
-    if (postCount > MAXIMUM_BURNING_CELL) {
-        updateGameState(WINNING_THE_GAME);
+    if (postCount > maximumBurningCell) {
+        // std::cout << "Post count: " << postCount << std::endl;
+        updateGameState(LOSING_THE_GAME);
         return;
     }
 
@@ -339,14 +344,19 @@ void Game::handleUserInput(SDL_Event e) {
     int mouseX = e.button.x, mouseY = e.button.y;
     int cellX, cellY;
     board.getChosenCell(mouseX, mouseY, cellX, cellY);
+    // std::cout << "Still handling" << std::endl;
     if (cellX == -1 && cellY == -1) {
         return;
     }
+
+    // std::cout << cellX << " " << cellY << std::endl;
 
     if (board.getCellType(cellX, cellY) == EMPTY_CELL) {
         board.setCellType(cellX, cellY, PROTECTED_CELL);
         nextStep();
     } 
+
+    // std::cout << "Done!" << std::endl;
 
     return;
 }

@@ -22,6 +22,7 @@ enum State {
 
 class Button {
 private:
+    int frame = 0;
     std::string buttonName;
     SDL_Rect buttonRect;
     SDL_Rect textRect;
@@ -50,7 +51,7 @@ Menu loadMenuFromFile(std::string file, SDL_Renderer* &renderer, Gallery &galler
 
 class Background {
 private:
-    int frame;
+    int frame = 0;
     State currentState;
     std::vector <PictureID> backgroundID;
 public:

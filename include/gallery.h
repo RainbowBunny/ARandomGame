@@ -22,6 +22,7 @@ enum PictureID {
     GAME_LOSE,
     BUTTON, 
     BACKGROUND,
+    GAME,
     PIC_COUNT
 };
 
@@ -42,7 +43,7 @@ public:
 
     void loadGamePictures();
     std::vector <SDL_Texture*> getImage(PictureID id) const { return pictures[id]; }
-    SDL_Texture* getFrame(PictureID obj, int currentFrame) const { return pictures[obj][currentFrame % (int)pictures[obj].size()]; }
+    SDL_Texture* getFrame(PictureID obj, int &currentFrame);
     SDL_Texture* loadTextureFromText(std::string textString, SDL_Color textColor);
     SDL_Texture* mergingTexture(SDL_Texture* texture1, SDL_Texture* texture2);
 };

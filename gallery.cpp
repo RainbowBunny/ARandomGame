@@ -36,16 +36,17 @@ std::vector <SDL_Texture*> Gallery::loadTextureFromImage(std::string path,
         Output:
             animation (vector <SDL_Texture*>): The loaded animation of the object.
     */
+    std::vector <SDL_Surface*> surfaceList(numberOfFrame); 
     std::vector <SDL_Texture*> animation(numberOfFrame);
+    std::cout << path << std::endl;
     for (int i = 0; i < numberOfFrame; i++) {
-        SDL_Surface* loadedSurface = IMG_Load((path + "_" + std::to_string(i) + extension).c_str());
-        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0xFF, 0xFF, 0xFF));
-        if (loadedSurface == nullptr) {
+        surfaceList[i] = IMG_Load((path + "_" + std::to_string(i) + extension).c_str());
+        SDL_SetColorKey(surfaceList[i], SDL_TRUE, SDL_MapRGB(surfaceList[i]->format, 0xFF, 0xFF, 0xFF));
+        if (surfaceList[i] == nullptr) {
             logSDLError(std::cout, "Can not load image: " + path, true);            
         }
-        animation[i] = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        animation[i] = SDL_CreateTextureFromSurface(renderer, surfaceList[i]);
         SDL_SetTextureBlendMode(animation[i], blendMode);
-        SDL_FreeSurface(loadedSurface);
     }
 
     return animation;
@@ -74,7 +75,15 @@ void Gallery::loadGamePictures() {
     pictures.push_back(loadTextureFromImage("image/game_over", 1, ".png", SDL_BLENDMODE_BLEND));
     pictures.push_back(loadTextureFromImage("image/button", 1, ".png", SDL_BLENDMODE_BLEND));
     pictures.push_back(loadTextureFromImage("image/menu_background", 1, ".jpg", SDL_BLENDMODE_BLEND));
+    pictures.push_back(loadTextureFromImage("image/game_background", 1, ".png", SDL_BLENDMODE_BLEND));
+}
 
+SDL_Texture* Gallery::getFrame(PictureID obj, int &currentFrame) {
+    if (currentFrame < 0) {
+        logError(std::cout, "Invalid frame ", true);
+    }
+    currentFrame %= pictures[obj].size();
+    return pictures[obj][currentFrame];
 }
 
 SDL_Texture* Gallery::loadTextureFromText(std::string textString, SDL_Color textColor) {

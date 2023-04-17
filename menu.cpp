@@ -4,6 +4,7 @@
 // SDL2 library
 
 // Standard library
+#include <unistd.h>
 
 Button::Button(std::string _buttonName, SDL_Rect position, SDL_Texture* normal, SDL_Texture* choosing) {
     buttonName = _buttonName;
@@ -20,7 +21,8 @@ bool Button::isChoosing(int mouseX, int mouseY) {
 }
 
 void Button::renderButton(SDL_Renderer* &renderer, Gallery& gallery, int mouseX, int mouseY) {
-    SDL_RenderCopy(renderer, gallery.getFrame(BUTTON, 0), nullptr, &buttonRect);
+    SDL_RenderCopy(renderer, gallery.getFrame(BUTTON, frame), nullptr, &buttonRect);
+    frame++;
     if (isChoosing(mouseX, mouseY)) {
         SDL_RenderCopy(renderer, buttonChoosing, nullptr, &textRect);
     } else {
@@ -68,9 +70,12 @@ Menu loadMenuFromFile(std::string file, SDL_Renderer* &renderer, Gallery &galler
     std::vector <SDL_Texture*> buttonChoosing(numberOfButton);
 
     for (int i = 0; i < numberOfButton; i++) {
-        fin >> buttonName[i];
+        std::string tmp;
+        getline(fin, tmp);
+        getline(fin, buttonName[i]);
         fin >> buttonPosition[i].x >> buttonPosition[i].y >> buttonPosition[i].w >> buttonPosition[i].h;
-        fin >> buttonContent[i];
+        getline(fin, tmp);
+        getline(fin, buttonContent[i]);
 
         int r1, b1, g1, r2, b2, g2;
         fin >> r1 >> b1 >> g1;
@@ -123,8 +128,8 @@ Background::Background() {
     currentState = MAIN_MENU;
 
     backgroundID.push_back(BACKGROUND);
-    backgroundID.push_back(BACKGROUND);
-    backgroundID.push_back(BACKGROUND);
+    backgroundID.push_back(GAME);
+    backgroundID.push_back(GAME);
     backgroundID.push_back(GAME_WIN);
     backgroundID.push_back(GAME_LOSE);
 }
@@ -133,5 +138,3 @@ void Background::renderBackground(SDL_Renderer* &renderer, Gallery &gallery) {
     SDL_RenderCopy(renderer, gallery.getFrame(backgroundID[currentState], frame), nullptr, nullptr);
     frame++;
 }
-
-

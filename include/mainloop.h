@@ -12,11 +12,12 @@
 
 class MainLoop {
 private:
-    Menu mainMenu, difficultMenu, pauseMenu, confirmMenu;
+    Menu mainMenu, difficultMenu, pauseMenu, confirmMenu, restartMenu;
     Background background;
     Game game;
 
     GameState gameState;
+    std::vector <int> easy, medium, hard;
 public:
     MainLoop(SDL_Renderer* renderer, Gallery &gallery);
     void updateGameState(GameState state) { gameState = state; }
