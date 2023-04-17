@@ -6,6 +6,7 @@
 // SDL2 library
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 // Standard library
 #include <string>
@@ -20,7 +21,7 @@ enum PictureID {
     GAME_WIN,
     GAME_LOSE,
     BUTTON, 
-    BACK_GROUND,
+    BACKGROUND,
     PIC_COUNT
 };
 
@@ -31,9 +32,10 @@ class Gallery {
 private:
     std::vector <std::vector <SDL_Texture*> > pictures;
     SDL_Renderer* renderer;
+    TTF_Font* font;
+    void loadFont(std::string path);
     std::vector <SDL_Texture*> loadTextureFromImage(std::string path, 
         int numberOfFrame, std::string extension, SDL_BlendMode blendMode);
-    SDL_Texture* loadTextureFromText(std::string textString, SDL_Color textColor);
 public:
     Gallery(SDL_Renderer* _renderer);
     ~Gallery();
@@ -41,6 +43,8 @@ public:
     void loadGamePictures();
     std::vector <SDL_Texture*> getImage(PictureID id) const { return pictures[id]; }
     SDL_Texture* getFrame(PictureID obj, int currentFrame) const { return pictures[obj][currentFrame % (int)pictures[obj].size()]; }
+    SDL_Texture* loadTextureFromText(std::string textString, SDL_Color textColor);
+    SDL_Texture* mergingTexture(SDL_Texture* texture1, SDL_Texture* texture2);
 };
 
 #endif

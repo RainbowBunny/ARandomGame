@@ -6,6 +6,7 @@
 // SDL2 library
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 // Standard library
 #include <iostream>

@@ -1,8 +1,5 @@
 // Custom library
-#include <constants.h>
-#include <utils.h>
-#include <object.h>
-#include <gallery.h>
+#include <mainloop.h>
 
 // SDL2 library
 #include <SDL2/SDL.h>
@@ -24,9 +21,9 @@ int main(int argc, char **argv) {
     Gallery gGallery(gRenderer);
     gGallery.loadGamePictures();
 
-    Game game(28, 1, 1, 7, 7, 200, 20, gRenderer, gGallery);
+    // Game game(28, 1, 1, 7, 7, 200, 20, gRenderer, gGallery);
 
-    std::cout << "Initiated game" << std::endl;
+    std::cout << "Initiated gallery" << std::endl;
     std::cout << SDL_GetError();
     
     // Event handler
@@ -36,31 +33,24 @@ int main(int argc, char **argv) {
     Uint32 frameStart;
     int frameTime;
 
+    MainLoop gameLoop(gRenderer, gGallery);
+
     // Main game loop.
-    while (true) {
+    while (gameLoop.getGameState() != QUITTING_THE_GAME) {
         // Get the number of ticks at the start of the loop
         frameStart = SDL_GetTicks();
 
         SDL_SetRenderDrawColor(gRenderer, WHITE_COLOR.r, WHITE_COLOR.g, WHITE_COLOR.b, WHITE_COLOR.a);
         SDL_RenderClear(gRenderer);
 
-        // Getting user input
-        while (SDL_PollEvent(&e) != 0) {
-            game.handleUserInput(e);
+        while (SDL_PollEvent(&e)) {
+            gameLoop.handleUserInput(e, gRenderer, gGallery);
         }
 
-        if (game.getGameState() == QUIT) {
-            break;
-        } else if (game.getGameState() == WIN) {
-            std::cout << "Winning" << std::endl;
-            break;
-        } else if (game.getGameState() == LOSE) {
-            std::cout << "Losing" << std::endl;
-            break;
-        }
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        gameLoop.renderGame(gRenderer, gGallery, mouseX, mouseY);
 
-        game.renderGame(gRenderer, DEFAULT_COLOR, gGallery);
-        
         SDL_RenderPresent(gRenderer);
 
         // Delay to maintain the current FPS

@@ -49,8 +49,14 @@ void initSDL(SDL_Window* &window, SDL_Renderer* &renderer,
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
     SDL_RenderSetLogicalSize(renderer, screenWidth, screenHeight);
 
+    // Initialize the Image library
     if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) != (IMG_INIT_PNG | IMG_INIT_JPG)) {
         logSDLError(std::cout, "IMG Init", true);
+    }
+
+    // Initialize the ttf library
+    if (TTF_Init() == -1) {
+        logSDLError(std::cout, "TTF Init", true);
     }
 }
 
@@ -62,6 +68,8 @@ void quitSDL(SDL_Window* window, SDL_Renderer* renderer) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    IMG_Quit();
+    TTF_Quit();
 }
 
 void logError(std::ostream &os, const std::string &msg, bool fatal) {

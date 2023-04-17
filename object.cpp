@@ -25,6 +25,7 @@ void Cell::updateDefaultState(SDL_Texture* _default) {
 }
 
 void Cell::drawCell(SDL_Renderer* &renderer, Gallery &gallery, SDL_Texture* image) {
+    std::cout << SDL_GetError() << std::endl;
     // remember to break when using switch case.
     if (image != nullptr) {
         SDL_RenderCopy(renderer, image, nullptr, &cellRect);
@@ -129,7 +130,8 @@ void Board::renderMouseSpecialCell(int mouseX, int mouseY, SDL_Renderer* &render
     */
     for (int i = 0; i < boardWidth; i++) {
         for (int j = 0; j < boardHeight; j++) {
-            if (gameBoard[i][j].isInsideCell(mouseX, mouseY) == true && gameBoard[i][j].getCellType() != BURNING_CELL && gameBoard[i][j].getCellType() != PROTECTED_CELL) {
+            if (gameBoard[i][j].isInsideCell(mouseX, mouseY) == true && gameBoard[i][j].getCellType() != BURNING_CELL && gameBoard[i][j].getCellType() != PROTECTED_CELL && 
+                gameBoard[i][j].getCellType() != CAT_CELL) {
                 gameBoard[i][j].drawCell(renderer, gallery, gallery.getFrame(PROTECTED, 0));
             }
         }
@@ -305,17 +307,17 @@ void Game::nextStep() {
         Rendering the next stage of the game
     */
     if (!board.nextStep()) {
-        updateGameState(LOSE);
+        updateGameState(LOSING_THE_GAME);
         return;
     }
     int postCount = board.countBurning();
     if (postCount > MAXIMUM_BURNING_CELL) {
-        updateGameState(LOSE);
+        updateGameState(WINNING_THE_GAME);
         return;
     }
 
     if (board.stalemate()) {
-        updateGameState(WIN);
+        updateGameState(WINNING_THE_GAME);
         return;
     }
 }
@@ -327,25 +329,24 @@ void Game::handleUserInput(SDL_Event e) {
         - Choose a cell.
     */
     if (e.type == SDL_QUIT) {
-        updateGameState(QUIT);
+        updateGameState(QUITTING_THE_GAME);
         return;
     }
     if (e.type != SDL_MOUSEBUTTONDOWN) {
         return;
     }
 
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
+    int mouseX = e.button.x, mouseY = e.button.y;
     int cellX, cellY;
     board.getChosenCell(mouseX, mouseY, cellX, cellY);
     if (cellX == -1 && cellY == -1) {
         return;
     }
 
-    if (board.getCellType(cellX, cellY) == PROTECTED_CELL) {
-        return;
+    if (board.getCellType(cellX, cellY) == EMPTY_CELL) {
+        board.setCellType(cellX, cellY, PROTECTED_CELL);
+        nextStep();
     } 
 
-    board.setCellType(cellX, cellY, PROTECTED_CELL);
-    nextStep();
+    return;
 }
