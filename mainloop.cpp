@@ -77,7 +77,17 @@ void MainLoop::renderGame(SDL_Renderer* &renderer, Gallery &gallery, int mouseX,
         break;
     }
 
-    case GAME_WINNING: {
+    case PAUSING_THE_GAME: {
+        game.renderGame(renderer, BLACK_COLOR, gallery);
+        difficulty.renderTextBox(renderer, gallery);
+        boardSize.renderTextBox(renderer, gallery);
+        currentBurningCell.renderTextBox(renderer, gallery);
+        burningCell.renderTextBox(renderer, gallery);
+        pauseMenu.renderMenu(renderer, gallery, mouseX, mouseY);
+        break;
+    }
+
+    case WINNING_THE_GAME: {
         game.renderGame(renderer, BLACK_COLOR, gallery);
         difficulty.renderTextBox(renderer, gallery);
         boardSize.renderTextBox(renderer, gallery);
@@ -87,7 +97,7 @@ void MainLoop::renderGame(SDL_Renderer* &renderer, Gallery &gallery, int mouseX,
         break;
     }
 
-    case GAME_LOSING: {
+    case LOSING_THE_GAME: {
         game.renderGame(renderer, BLACK_COLOR, gallery);
         difficulty.renderTextBox(renderer, gallery);
         boardSize.renderTextBox(renderer, gallery);
@@ -205,6 +215,20 @@ void MainLoop::handleUserInput(SDL_Event e, SDL_Renderer* &renderer, Gallery gal
             break;
         }
 
+        case PAUSING_THE_GAME: {
+            std::string clickedButton = pauseMenu.getPressedButton(mouseX, mouseY);
+            if (clickedButton == "resume") {
+                updateGameState(PLAYING_THE_GAME);
+            } else if (clickedButton == "restart") {
+                updateGameState(CHOOSING_DIFFICULTY);
+            } else if (clickedButton == "quit") {
+                updateGameState(STARTING_SCREEN);
+            } else {
+                logError(std::cout, "Maybe there are undefined behavior somewhere, clicked button in restart menu: " + clickedButton, false);
+            }
+            break;
+        }
+
         default: {
             break;
         }
@@ -218,7 +242,9 @@ void MainLoop::handleUserInput(SDL_Event e, SDL_Renderer* &renderer, Gallery gal
         switch (e.key.keysym.sym) {
         case SDLK_ESCAPE: {
             if (gameState == PLAYING_THE_GAME) {
-
+                updateGameState(PAUSING_THE_GAME);
+            } else if (gameState == PAUSING_THE_GAME) {
+                updateGameState(PLAYING_THE_GAME);
             }
             break;
         }
