@@ -78,10 +78,22 @@ void MainLoop::renderGame(SDL_Renderer* &renderer, Gallery &gallery, int mouseX,
     }
 
     case GAME_WINNING: {
+        game.renderGame(renderer, BLACK_COLOR, gallery);
+        difficulty.renderTextBox(renderer, gallery);
+        boardSize.renderTextBox(renderer, gallery);
+        currentBurningCell.renderTextBox(renderer, gallery);
+        burningCell.renderTextBox(renderer, gallery);
+        background.renderBackground(renderer, gallery);
         break;
     }
 
     case GAME_LOSING: {
+        game.renderGame(renderer, BLACK_COLOR, gallery);
+        difficulty.renderTextBox(renderer, gallery);
+        boardSize.renderTextBox(renderer, gallery);
+        currentBurningCell.renderTextBox(renderer, gallery);
+        burningCell.renderTextBox(renderer, gallery);
+        background.renderBackground(renderer, gallery);
         break;
     }
 
@@ -129,18 +141,21 @@ void MainLoop::handleUserInput(SDL_Event e, SDL_Renderer* &renderer, Gallery gal
                 background.setBackgroundState(GAME_BACKGROUND);
                 difficulty.updateText("Easy");
                 boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
+                currentBurningCell.updateText(std::to_string(game.getCurrentBurningCell()) + "/" + std::to_string(game.getMaximumBurningCell()));
             } else if (clickedButton == "medium") {
                 game = Game(medium[0], medium[1], medium[2], medium[3], medium[4], medium[5], medium[6], medium[7], medium[8], renderer, gallery);
                 updateGameState(PLAYING_THE_GAME);
                 background.setBackgroundState(GAME_BACKGROUND);
                 difficulty.updateText("Medium");
                 boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
+                currentBurningCell.updateText(std::to_string(game.getCurrentBurningCell()) + "/" + std::to_string(game.getMaximumBurningCell()));
             } else if (clickedButton == "hard") {
                 game = Game(hard[0], hard[1], hard[2], hard[3], hard[4], hard[5], hard[6], hard[7], hard[8], renderer, gallery);
                 updateGameState(PLAYING_THE_GAME);
                 background.setBackgroundState(GAME_BACKGROUND);
                 difficulty.updateText("Hard");
                 boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
+                currentBurningCell.updateText(std::to_string(game.getCurrentBurningCell()) + "/" + std::to_string(game.getMaximumBurningCell()));
             } else {
                 logError(std::cout, "Maybe there are undefined behavior somewhere, clicked button in diff menu: " + clickedButton, false);
             }
@@ -190,7 +205,32 @@ void MainLoop::handleUserInput(SDL_Event e, SDL_Renderer* &renderer, Gallery gal
             break;
         }
 
+        default: {
+            break;
         }
+            
+
+        }
+        break;
+    }
+
+    case SDL_KEYDOWN: {
+        switch (e.key.keysym.sym) {
+        case SDLK_ESCAPE: {
+            if (gameState == PLAYING_THE_GAME) {
+
+            }
+            break;
+        }
+
+        default: {
+            break;
+        }
+
+        }
+    }
+
+    default: {
         break;
     }
 

@@ -141,14 +141,11 @@ void Background::renderBackground(SDL_Renderer* &renderer, Gallery &gallery) {
 
 void Textbox::renderTextBox(SDL_Renderer* &renderer, Gallery &gallery) {
     if (background != NONE) {
-        std::cout << 1 << std::endl;
-        std::cout << backgroundRect.x << " " << backgroundRect.y << " " << backgroundRect.w << " " << backgroundRect.h << std::endl;
         SDL_RenderCopy(renderer, gallery.getFrame(background, frame), nullptr, &backgroundRect);
         frame++;
     }
     
     if ((int)textString.size() > 0) {
-        std::cout << 2 << std::endl;
         SDL_RenderCopy(renderer, gallery.loadTextureFromText(textString, textColor), nullptr, &textRect);
     }
 }
