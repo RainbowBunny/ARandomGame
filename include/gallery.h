@@ -23,6 +23,7 @@ enum PictureID {
     BUTTON, 
     BACKGROUND,
     GAME,
+    NONE,
     PIC_COUNT
 };
 

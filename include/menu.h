@@ -59,3 +59,20 @@ public:
     void setBackgroundState(State state) { currentState = state; frame = 0; }
     void renderBackground(SDL_Renderer* &renderer, Gallery &gallery);
 };
+
+class Textbox {
+private:
+    int frame = 0;
+    PictureID background;
+    SDL_Rect backgroundRect, textRect;
+    SDL_Color textColor;
+    std::string textString;
+public:
+    Textbox() {}
+    Textbox(PictureID _background, SDL_Rect _backgroundRect, SDL_Rect _textRect, SDL_Color _textColor) { 
+        background = _background; backgroundRect = _backgroundRect; textRect = _textRect; textColor = _textColor; }
+    void updateText(std::string newText) { textString = newText; }
+    void renderTextBox(SDL_Renderer* &renderer, Gallery &gallery);
+};
+
+Textbox createTextboxFromFile(std::ifstream &fin, PictureID id);

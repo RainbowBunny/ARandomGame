@@ -14,6 +14,7 @@ class MainLoop {
 private:
     Menu mainMenu, difficultMenu, pauseMenu, confirmMenu, restartMenu;
     Background background;
+    Textbox difficulty, boardSize, currentBurningCell, burningCell;
     Game game;
 
     GameState gameState;

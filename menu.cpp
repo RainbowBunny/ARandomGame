@@ -138,3 +138,31 @@ void Background::renderBackground(SDL_Renderer* &renderer, Gallery &gallery) {
     SDL_RenderCopy(renderer, gallery.getFrame(backgroundID[currentState], frame), nullptr, nullptr);
     frame++;
 }
+
+void Textbox::renderTextBox(SDL_Renderer* &renderer, Gallery &gallery) {
+    if (background != NONE) {
+        std::cout << 1 << std::endl;
+        std::cout << backgroundRect.x << " " << backgroundRect.y << " " << backgroundRect.w << " " << backgroundRect.h << std::endl;
+        SDL_RenderCopy(renderer, gallery.getFrame(background, frame), nullptr, &backgroundRect);
+        frame++;
+    }
+    
+    if ((int)textString.size() > 0) {
+        std::cout << 2 << std::endl;
+        SDL_RenderCopy(renderer, gallery.loadTextureFromText(textString, textColor), nullptr, &textRect);
+    }
+}
+
+Textbox createTextboxFromFile(std::ifstream &fin, PictureID id) {
+    SDL_Rect _backgroundRect, _textRect;
+    SDL_Color _color;
+    fin >> _backgroundRect.x >> _backgroundRect.y >> _backgroundRect.w >> _backgroundRect.h;
+    std::cout << _backgroundRect.x << " " << _backgroundRect.y << " " << _backgroundRect.w << " " << _backgroundRect.h << std::endl;
+    fin >> _textRect.x >> _textRect.y >> _textRect.w >> _textRect.h;
+    int r, g, b;
+    fin >> r >> g >> b;
+    _color.r = castingIntToUint8(r);
+    _color.g = castingIntToUint8(g);
+    _color.b = castingIntToUint8(b);
+    return Textbox(id, _backgroundRect, _textRect, _color);
+}

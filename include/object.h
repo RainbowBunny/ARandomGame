@@ -59,6 +59,8 @@ public:
     Board() {}
     Board(int _boardWidth, int _boardHeight, int _gameBoardLeft, 
         int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery);
+    int getBoardWidth() { return width; }
+    int getBoardHeight() { return height; }
     bool isInsideBoard(int x, int y);
     CellType getCellType(int x, int y) { return gameBoard[x][y].getCellType(); }
     void setCellType(int x, int y, CellType type) { gameBoard[x][y].setCellType(type); }
@@ -91,6 +93,10 @@ public:
     Game() {}
     Game(int _maximumBurningCell, int numberOfCat, int initialBurningCell, int _boardWidth, int _boardHeight, 
         int _gameBoardLeft, int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery);
+    int getBoardWidth() { return board.getBoardWidth(); }
+    int getBoardHeight() { return board.getBoardHeight(); }
+    int getCurrentBurningCell() { return board.countBurning(); }
+    int getMaximumBurningCell() { return maximumBurningCell; }
     void renderGame(SDL_Renderer* &renderer, SDL_Color color, Gallery &gallery);
     void nextStep();
     void handleUserInput(SDL_Event e);

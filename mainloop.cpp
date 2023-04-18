@@ -38,6 +38,15 @@ MainLoop::MainLoop(SDL_Renderer* renderer, Gallery &gallery) {
         fin >> x;
     } 
 
+    std::ifstream textboxLoader("data/textbox_data.txt");
+    if (!textboxLoader.is_open()) {
+        logError(std::cout, "Textbox file loading fail", true);
+    }
+    difficulty = createTextboxFromFile(textboxLoader, BUTTON);
+    boardSize = createTextboxFromFile(textboxLoader, BUTTON);
+    currentBurningCell = createTextboxFromFile(textboxLoader, BUTTON);
+    burningCell = createTextboxFromFile(textboxLoader, NONE);
+
     background = Background();
 
     gameState = STARTING_SCREEN;
@@ -59,6 +68,10 @@ void MainLoop::renderGame(SDL_Renderer* &renderer, Gallery &gallery, int mouseX,
     case PLAYING_THE_GAME: {
         // std::cout << "Rendering the game: ";
         game.renderGame(renderer, BLACK_COLOR, gallery);
+        difficulty.renderTextBox(renderer, gallery);
+        boardSize.renderTextBox(renderer, gallery);
+        currentBurningCell.renderTextBox(renderer, gallery);
+        burningCell.renderTextBox(renderer, gallery);
         // std::cout << SDL_GetError() << std::endl;
         // std::cout << "Finished rendering" << std::endl;
         break;
@@ -114,19 +127,20 @@ void MainLoop::handleUserInput(SDL_Event e, SDL_Renderer* &renderer, Gallery gal
                 game = Game(easy[0], easy[1], easy[2], easy[3], easy[4], easy[5], easy[6], easy[7], easy[8], renderer, gallery);
                 updateGameState(PLAYING_THE_GAME);
                 background.setBackgroundState(GAME_BACKGROUND);
-
+                difficulty.updateText("Easy");
+                boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
             } else if (clickedButton == "medium") {
-
                 game = Game(medium[0], medium[1], medium[2], medium[3], medium[4], medium[5], medium[6], medium[7], medium[8], renderer, gallery);
                 updateGameState(PLAYING_THE_GAME);
                 background.setBackgroundState(GAME_BACKGROUND);
-
+                difficulty.updateText("Medium");
+                boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
             } else if (clickedButton == "hard") {
-
                 game = Game(hard[0], hard[1], hard[2], hard[3], hard[4], hard[5], hard[6], hard[7], hard[8], renderer, gallery);
                 updateGameState(PLAYING_THE_GAME);
                 background.setBackgroundState(GAME_BACKGROUND);
-
+                difficulty.updateText("Hard");
+                boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
             } else {
                 logError(std::cout, "Maybe there are undefined behavior somewhere, clicked button in diff menu: " + clickedButton, false);
             }
@@ -145,6 +159,7 @@ void MainLoop::handleUserInput(SDL_Event e, SDL_Renderer* &renderer, Gallery gal
                 updateGameState(LOSING_THE_GAME);
                 background.setBackgroundState(GAME_LOSING);
             }
+            currentBurningCell.updateText(std::to_string(game.getCurrentBurningCell()) + "/" + std::to_string(game.getMaximumBurningCell()));
             // std::cout << "Finished" << std::endl;
             break;
         }
