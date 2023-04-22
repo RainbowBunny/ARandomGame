@@ -70,8 +70,8 @@ void Cell::drawCell(SDL_Renderer* &renderer, Gallery &gallery, SDL_Texture* imag
     }
 }
 
-Board::Board(int _boardWidth, int _boardHeight, int _gameBoardLeft, 
-    int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery) {
+Board::Board(int _boardWidth, int _boardHeight, int _gameBoardLeft, int _gameBoardTop, 
+    int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery) {
     boardRect = {_gameBoardTop, _gameBoardLeft, _boardWidth, _boardHeight};
     width = _width;
     height = _height;
@@ -258,41 +258,25 @@ void Cat::generatePosition(int width, int height, RandomGenerator &randomGenerat
     }
 }
 
-Game::Game(int _maximumBurningCell, int numberOfCat, int initialBurningCell, int _boardWidth, int _boardHeight, 
-    int _gameBoardLeft, int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery) {
-    /*
-        Game initialize
-    */
+Game::Game(std::vector <int> data, SDL_Renderer* _renderer, Gallery &gallery, std::vector <std::pair <int, int> > &Cat, std::vector <std::pair <int, int> > &Fire) {
+    maximumBurningCell = data[0];
 
-    maximumBurningCell = _maximumBurningCell;
-    // std::cout << "MaximumBurningCell: " << maximumBurningCell << std::endl;
-
-    // Initializing the random generator
     unsigned seed = std::chrono::steady_clock::now().time_since_epoch().count();
     randomGenerator = RandomGenerator(seed);
 
     // Initializing the board of the game
-    board = Board(_boardWidth, _boardHeight, _gameBoardLeft, 
-        _gameBoardTop, _width, _height, _renderer, gallery);
+    board = Board(data[3], data[4], data[5], 
+        data[6], data[7], data[8], _renderer, gallery);
     
     // Creating the cat
-    catList.resize(numberOfCat);
-    for (int i = 0; i < numberOfCat; i++) {
-        catList[i].generatePosition(_width, _height, randomGenerator, board);
-        board.setCellType(catList[i].getX(), catList[i].getY(), CAT_CELL);
-    }
-    
+    std::random_shuffle(Cat.begin(), Cat.end());
+    std::random_shuffle(Fire.begin(), Fire.end());
 
-    // Creating the fire
-    while (true) {
-        int randomX = randomGenerator.randomInteger(0, _width - 1);
-        int randomY = randomGenerator.randomInteger(0, _height - 1);
-        if (randomX + randomY > (_width + _height) / 2) {
-            std::cout << randomX << ' ' << randomY << std::endl;
-            board.setCellType(randomX, randomY, BURNING_CELL);
-            break;
-        }
+    for (int i = 0; i < data[1]; i++) {
+        board.setCellType(Cat[i].first, Cat[i].second, CAT_CELL);
     }
+
+    board.setCellType(Fire[0].first, Fire[0].second, BURNING_CELL);
 }
 
 void Game::renderGame(SDL_Renderer* &renderer, SDL_Color color, Gallery &gallery) {

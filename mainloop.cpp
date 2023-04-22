@@ -22,21 +22,29 @@ MainLoop::MainLoop(SDL_Renderer* renderer, Gallery &gallery) {
     restartMenu = loadMenuFromFile("data/restart_menu.txt", renderer, gallery);
 
     std::ifstream fin("data/level_data.txt");
-    easy.resize(9);
-    medium.resize(9);
-    hard.resize(9);
+    for (int i = 0; i < TOTAL_LEVEL; i++) {
+        levelData[i].resize(9);
+        for (auto &x : levelData[i]) {
+            fin >> x;
+        }
+    }
 
-    for (auto &x : easy) {
-        fin >> x;
-    } 
+    std::string file[] = {"data/easy.txt", "data/medium.txt", "data/hard.txt"};
+    for (int i = 0; i < TOTAL_LEVEL; i++) {
+        std::ifstream inStream(file[i]);
+        int cat, fire;
+        inStream >> cat;
+        catPosition[i].resize(cat);
+        for (auto &x : catPosition[i]) {
+            inStream >> x.first >> x.second;
+        }
 
-    for (auto &x : medium) {
-        fin >> x;
-    } 
-
-    for (auto &x : hard) {
-        fin >> x;
-    } 
+        inStream >> fire;
+        firePosition[i].resize(fire);
+        for (auto &x : firePosition[i]) {
+            inStream >> x.first >> x.second;
+        }
+    }
 
     std::ifstream textboxLoader("data/textbox_data.txt");
     if (!textboxLoader.is_open()) {
@@ -146,25 +154,31 @@ void MainLoop::handleUserInput(SDL_Event e, SDL_Renderer* &renderer, Gallery gal
             if (clickedButton == "none") {
                 logError(std::cout, "Clicking random thing in difficulty menu", false);
             } else if (clickedButton == "easy") {
-                game = Game(easy[0], easy[1], easy[2], easy[3], easy[4], easy[5], easy[6], easy[7], easy[8], renderer, gallery);
+                game = Game(levelData[EASY], renderer, gallery, catPosition[EASY], firePosition[EASY]);
+
                 updateGameState(PLAYING_THE_GAME);
                 background.setBackgroundState(GAME_BACKGROUND);
                 difficulty.updateText("Easy");
                 boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
+
                 currentBurningCell.updateText(std::to_string(game.getCurrentBurningCell()) + "/" + std::to_string(game.getMaximumBurningCell()));
             } else if (clickedButton == "medium") {
-                game = Game(medium[0], medium[1], medium[2], medium[3], medium[4], medium[5], medium[6], medium[7], medium[8], renderer, gallery);
+                game = Game(levelData[MEDIUM], renderer, gallery, catPosition[MEDIUM], firePosition[MEDIUM]);
+
                 updateGameState(PLAYING_THE_GAME);
                 background.setBackgroundState(GAME_BACKGROUND);
                 difficulty.updateText("Medium");
                 boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
+
                 currentBurningCell.updateText(std::to_string(game.getCurrentBurningCell()) + "/" + std::to_string(game.getMaximumBurningCell()));
             } else if (clickedButton == "hard") {
-                game = Game(hard[0], hard[1], hard[2], hard[3], hard[4], hard[5], hard[6], hard[7], hard[8], renderer, gallery);
+                game = Game(levelData[HARD], renderer, gallery, catPosition[HARD], firePosition[HARD]);
+
                 updateGameState(PLAYING_THE_GAME);
                 background.setBackgroundState(GAME_BACKGROUND);
                 difficulty.updateText("Hard");
                 boardSize.updateText(std::to_string(game.getBoardHeight()) + "x" + std::to_string(game.getBoardWidth()));
+                
                 currentBurningCell.updateText(std::to_string(game.getCurrentBurningCell()) + "/" + std::to_string(game.getMaximumBurningCell()));
             } else {
                 logError(std::cout, "Maybe there are undefined behavior somewhere, clicked button in diff menu: " + clickedButton, false);

@@ -9,6 +9,9 @@
 // SDL2 library
 
 // Standard library
+#include <utility>
+
+
 
 class MainLoop {
 private:
@@ -18,7 +21,8 @@ private:
     Game game;
 
     GameState gameState;
-    std::vector <int> easy, medium, hard;
+    std::vector <int> levelData[TOTAL_LEVEL];
+    std::vector <std::pair <int, int> > catPosition[TOTAL_LEVEL], firePosition[TOTAL_LEVEL];
 public:
     MainLoop(SDL_Renderer* renderer, Gallery &gallery);
     void updateGameState(GameState state) { gameState = state; }

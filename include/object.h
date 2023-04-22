@@ -12,6 +12,7 @@
 // Standard library
 #include <vector>
 #include <chrono>
+#include <algorithm>
 #include <random>
 
 // Random device
@@ -22,6 +23,7 @@ public:
     RandomGenerator() {}
     RandomGenerator(unsigned seed) { rng.seed(seed); }
     int randomInteger(int l, int r) { return rng() % (r - l + 1) + l; }
+    int indexRandom(int i) { return rng() % i;}
 };
 
 enum CellType {
@@ -30,6 +32,13 @@ enum CellType {
     PROTECTED_CELL, // cell which was chosen, fire can not get through.
     EMPTY_CELL, // cell in the playing screen but does not has anything
     CELL_OFF_BOARD // cell out of playing screen.
+};
+
+enum LevelType {
+    EASY = 0,
+    MEDIUM,
+    HARD,
+    TOTAL_LEVEL
 };
 
 
@@ -57,8 +66,8 @@ private:
     std::vector <std::vector <Cell> > gameBoard;
 public:
     Board() {}
-    Board(int _boardWidth, int _boardHeight, int _gameBoardLeft, 
-        int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery);
+    Board(int _boardWidth, int _boardHeight, int _gameBoardLeft, int _gameBoardTop, 
+        int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery);
     int getBoardWidth() { return width; }
     int getBoardHeight() { return height; }
     bool isInsideBoard(int x, int y);
@@ -87,12 +96,10 @@ private:
     int maximumBurningCell;
     RandomGenerator randomGenerator;
     Board board;
-    std::vector <Cat> catList;
     GameState gameState = PLAYING_THE_GAME;
 public:
     Game() {}
-    Game(int _maximumBurningCell, int numberOfCat, int initialBurningCell, int _boardWidth, int _boardHeight, 
-        int _gameBoardLeft, int _gameBoardTop, int _width, int _height, SDL_Renderer* _renderer, Gallery &gallery);
+    Game(std::vector <int> data, SDL_Renderer* _renderer, Gallery &gallery, std::vector <std::pair <int, int> > &Cat, std::vector <std::pair <int, int> > &Fire);
     int getBoardWidth() { return board.getBoardWidth(); }
     int getBoardHeight() { return board.getBoardHeight(); }
     int getCurrentBurningCell() { return board.countBurning(); }

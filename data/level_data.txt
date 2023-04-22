@@ -1,6 +1,6 @@
 28 2 1 550 550 40 40 7 7
-40 3 1 550 550 40 40 10 10
-28 2 1 550 550 40 40 15 15
+50 3 1 550 550 40 40 10 10
+125 2 1 550 550 40 40 15 15
 
 
 // So o toi da / so con meo / so ngon lua bat dau / (x, y) la goc trai tren / (w, h) la kich co bang / 
